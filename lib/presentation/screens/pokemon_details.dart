@@ -1,12 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pokedex/data/models/boxes.dart';
 import 'package:pokedex/data/models/pokemon.dart';
 
-class PokemonDetail extends StatelessWidget {
-  PokemonDetail({Key? key, required this.pokemon}) : super(key: key);
-  Pokemon pokemon;
+import '../../bloc/pokemons/pokemons_bloc.dart';
+import '../../bloc/pokemons/pokemons_event.dart';
+import '../../bloc/pokemons/pokemons_state.dart';
+
+class PokemonDetail extends StatefulWidget {
+  static const String id = 'pokemonDetail';
+
+  @override
+  State<PokemonDetail> createState() => _PokemonDetailState();
+}
+
+class _PokemonDetailState extends State<PokemonDetail> {
   @override
   Widget build(BuildContext context) {
+    final box = Boxes.getPokemonBox();
     final deviceSize = MediaQuery.of(context).size;
+    final loadedPokemon =
+        ModalRoute.of(context)!.settings.arguments as Map<String, Pokemon>;
+
     return Scaffold(
       appBar: AppBar(
           leading: GestureDetector(
@@ -15,93 +30,124 @@ class PokemonDetail extends StatelessWidget {
           iconTheme: const IconThemeData(
             color: Colors.black,
           )),
-      body: Column(
-        children: [
-          Container(
-            height: 200,
-            width: double.infinity,
-            decoration: const BoxDecoration(color: Color(0XFFF3F9EF)),
-            child: Stack(
+      body: BlocBuilder<PokemonsBloc, PokemonsState>(
+        builder: (context, state) {
+          if (state is PokemonLoaded) {
+            final pokemon = box.get(loadedPokemon['pokemon']!.id) ??
+                state.pokemons.firstWhere((pokemon) =>
+                    pokemon.number == loadedPokemon['pokemon']!.number);
+
+            return Column(
               children: [
-                Positioned(
-                  top: 23,
-                  left: 16,
-                  child: Text(
-                    pokemon.name,
-                    style: const TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0XFF161A33)),
+                Container(
+                  height: 200,
+                  width: double.infinity,
+                  decoration: const BoxDecoration(color: Color(0XFFF3F9EF)),
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        top: 23,
+                        left: 16,
+                        child: Text(
+                          pokemon.name,
+                          style: const TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0XFF161A33)),
+                        ),
+                      ),
+                      Positioned(
+                        top: 67,
+                        left: 16,
+                        child: Text(
+                          pokemon.category,
+                          style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                              color: Color(0XFF161A33)),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 14,
+                        left: 16,
+                        child: Text(
+                          pokemon.number.length > 1
+                              ? '#0${pokemon.number}'
+                              : pokemon.number.length > 2
+                                  ? '#${pokemon.number}'
+                                  : '#00${pokemon.number}',
+                          style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                              color: Color(0XFF161A33)),
+                        ),
+                      ),
+                      const Positioned(
+                        bottom: -10,
+                        right: -23,
+                        child: Image(
+                          image: AssetImage('assets/images/Vector.png'),
+                          height: 176,
+                          width: 176,
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 16,
+                        child: Image(
+                          image: NetworkImage(pokemon.imageUrl),
+                          height: 125,
+                          width: 136,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Positioned(
-                  top: 67,
-                  left: 16,
-                  child: Text(
-                    pokemon.category,
-                    style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                        color: Color(0XFF161A33)),
-                  ),
+                MassIndex(pokemon: pokemon),
+                const SizedBox(
+                  height: 8,
                 ),
-                Positioned(
-                  bottom: 14,
-                  left: 16,
-                  child: Text(
-                    pokemon.number.length > 1
-                        ? '#0${pokemon.number}'
-                        : pokemon.number.length > 2
-                            ? '#${pokemon.number}'
-                            : '#00${pokemon.number}',
-                    style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                        color: Color(0XFF161A33)),
-                  ),
-                ),
-                const Positioned(
-                  bottom: -10,
-                  right: -23,
-                  child: Image(
-                    image: AssetImage('assets/images/Vector.png'),
-                    height: 176,
-                    width: 176,
-                  ),
-                ),
-                Positioned(
-                  bottom: 0,
-                  right: 16,
-                  child: Image(
-                    image: NetworkImage(pokemon.imageUrl),
-                    height: 125,
-                    width: 136,
-                  ),
-                ),
+                BaseStats(pokemon: pokemon, deviceSize: deviceSize)
               ],
-            ),
-          ),
-          MassIndex(pokemon: pokemon),
-          const SizedBox(
-            height: 8,
-          ),
-          BaseStats(pokemon: pokemon, deviceSize: deviceSize)
-        ],
+            );
+          }
+          return const Center(
+            child: Text('Unable to load pokemon'),
+          );
+        },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(36)),
-        label: Text(
-          'Add to favourites',
-          style: TextStyle(
-              color: pokemon.isFavourite
-                  ? const Color(0XFF3558CD)
-                  : const Color(0XFFFFFFFF)),
-        ),
-        backgroundColor: pokemon.isFavourite
-            ? const Color(0XFFD5DEFF)
-            : const Color(0XFF3558CD),
-      ),
+      floatingActionButton:
+          BlocBuilder<PokemonsBloc, PokemonsState>(builder: (context, state) {
+        final box = Boxes.getPokemonBox();
+        Pokemon? pokemon;
+        if (state is PokemonLoaded) {
+          pokemon = box.get(loadedPokemon['pokemon']!.id) ??
+              state.pokemons.firstWhere((pokemon) =>
+                  pokemon.number == loadedPokemon['pokemon']!.number);
+        }
+        return FloatingActionButton.extended(
+          onPressed: () {
+            setState(() {
+              BlocProvider.of<PokemonsBloc>(context)
+                  .add(SwitchPokemonFavourite(pokemon!));
+            });
+          },
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(36)),
+          label: Text(
+            pokemon!.isFavourite
+                ? 'Remove from favourites'
+                : 'Add to favourites',
+            style: TextStyle(
+                color: pokemon.isFavourite
+                    ? const Color(0XFF3558CD)
+                    : const Color(0XFFFFFFFF)),
+          ),
+          backgroundColor: pokemon.isFavourite
+              ? const Color(0XFFD5DEFF)
+              : const Color(0XFF3558CD),
+        );
+      }),
     );
   }
 }

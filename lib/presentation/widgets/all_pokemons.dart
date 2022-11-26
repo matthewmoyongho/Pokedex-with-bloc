@@ -10,7 +10,6 @@ import '../../bloc/pokemons/pokemons_state.dart';
 
 class AllPokemons extends StatelessWidget {
   AllPokemons({Key? key}) : super(key: key);
-  List<dynamic> numbers = List.generate(20, (index) => '$index');
 
   final scrollController = ScrollController();
 
@@ -26,7 +25,6 @@ class AllPokemons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //BlocProvider.of<PokemonsBloc>(context).add(FetchPokemon());
     setupScrollControl(context);
     return BlocBuilder<PokemonsBloc, PokemonsState>(
       builder: (context, state) {
@@ -65,7 +63,6 @@ class AllPokemons extends StatelessWidget {
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               mainAxisExtent: 186,
               crossAxisCount: 3,
-              //childAspectRatio: 1 / 2,
               crossAxisSpacing: 10,
               mainAxisSpacing: 12),
           padding: const EdgeInsets.all(15),

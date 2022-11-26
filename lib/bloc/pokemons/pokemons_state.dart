@@ -3,7 +3,8 @@ import 'package:pokedex/data/models/pokemon.dart';
 
 class PokemonsState extends Equatable {
   final List<Pokemon> pokemons;
-  PokemonsState({this.pokemons = const []});
+  final List<Pokemon> favouritePokemons;
+  PokemonsState({this.pokemons = const [], this.favouritePokemons = const []});
 
   @override
   List<Object?> get props => [pokemons];
@@ -11,11 +12,16 @@ class PokemonsState extends Equatable {
 
 class PokemonLoaded extends PokemonsState {
   final List<Pokemon> pokemons;
-  PokemonLoaded(this.pokemons);
+
+  final Pokemon? loadedPokemon;
+  PokemonLoaded({required this.pokemons, this.loadedPokemon});
 }
 
 class PokemonLoading extends PokemonsState {
   final List<Pokemon> pokemons;
   bool isFirstFetch;
-  PokemonLoading(this.pokemons, {this.isFirstFetch = false});
+  PokemonLoading({
+    required this.pokemons,
+    this.isFirstFetch = false,
+  });
 }

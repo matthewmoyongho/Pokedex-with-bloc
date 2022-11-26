@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:pokedex/bloc/pokemons/pokemons_bloc.dart';
 import 'package:pokedex/bloc/pokemons/pokemons_event.dart';
+import 'package:pokedex/data/models/boxes.dart';
 import 'package:pokedex/presentation/widgets/all_pokemons.dart';
 import 'package:pokedex/presentation/widgets/favourite_pokemons.dart';
+
+import '../../constants.dart';
+import '../../data/models/pokemon.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -24,6 +30,12 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       setState(() {});
     });
     BlocProvider.of<PokemonsBloc>(context).add(FetchPokemon());
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    Hive.box(kFavouritePokemon).close();
   }
 
   @override
@@ -59,12 +71,42 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         children: [
           TabBar(
             controller: tabController,
-            tabs: const [
-              Tab(
+            tabs: [
+              const Tab(
                 text: 'All Pokemons',
               ),
               Tab(
-                text: 'Favourites',
+                //text: 'Favourites',
+                child: Row(
+                  children: [
+                    const Text('Favourites'),
+                    const SizedBox(
+                      width: 4,
+                    ),
+                    ValueListenableBuilder<Box<Pokemon>>(
+                      valueListenable: Boxes.getPokemonBox().listenable(),
+                      builder: (context, box, _) {
+                        final pokemons = box.values.toList().cast<Pokemon>();
+
+                        return Container(
+                          decoration: BoxDecoration(
+                              color: Color(0XFF3558CD),
+                              borderRadius: BorderRadius.circular(15)),
+                          height: 20,
+                          width: 20,
+                          alignment: Alignment.center,
+                          child: Text(
+                            pokemons.length.toString(),
+                            style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.white),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

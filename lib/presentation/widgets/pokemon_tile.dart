@@ -8,8 +8,10 @@ class PokemonTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => PokemonDetail(pokemon: pokemon))),
+      onTap: () {
+        Navigator.of(context)
+            .pushNamed(PokemonDetail.id, arguments: {'pokemon': pokemon});
+      },
       child: Container(
         height: 186,
         width: 110,
@@ -17,7 +19,6 @@ class PokemonTile extends StatelessWidget {
             color: const Color(0xffFFFFFF),
             borderRadius: BorderRadius.circular(4)),
         child: Column(
-          // mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               height: 104,

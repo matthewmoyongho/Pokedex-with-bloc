@@ -1,32 +1,51 @@
 import 'dart:convert';
 
-class Pokemon {
+import 'package:hive/hive.dart';
+
+part 'pokemon.g.dart';
+
+@HiveType(typeId: 0)
+class Pokemon extends HiveObject {
+  @HiveField(0)
   int? id;
 
+  @HiveField(1)
   String number;
 
+  @HiveField(2)
   String name;
 
+  @HiveField(3)
   String category;
 
+  @HiveField(4)
   bool isFavourite;
 
+  @HiveField(5)
   String imageUrl;
 
+  @HiveField(6)
   int height;
 
+  @HiveField(7)
   int weight;
 
+  @HiveField(8)
   int hp;
 
+  @HiveField(9)
   int attack;
 
+  @HiveField(10)
   int defence;
 
+  @HiveField(11)
   int specialAttack;
 
+  @HiveField(12)
   int specialDefence;
 
+  @HiveField(13)
   int speed;
 
   Pokemon(
@@ -107,4 +126,38 @@ class Pokemon {
 
   // factory Pokemon.fromJson(String source) =>
   //     Pokemon.fromMap(json.decode(source));
+
+  Pokemon copyWith({
+    int? id,
+    String? number,
+    String? name,
+    String? category,
+    bool? isFavourite,
+    String? imageUrl,
+    int? height,
+    int? weight,
+    int? hp,
+    int? attack,
+    int? defence,
+    int? specialAttack,
+    int? specialDefence,
+    int? speed,
+  }) {
+    return Pokemon(
+      id: id ?? this.id,
+      number: number ?? this.number,
+      name: name ?? this.name,
+      category: category ?? this.category,
+      isFavourite: isFavourite ?? this.isFavourite,
+      imageUrl: imageUrl ?? this.imageUrl,
+      height: height ?? this.height,
+      weight: weight ?? this.weight,
+      hp: hp ?? this.hp,
+      attack: attack ?? this.attack,
+      defence: defence ?? this.defence,
+      specialAttack: specialAttack ?? this.specialAttack,
+      specialDefence: specialDefence ?? this.specialDefence,
+      speed: speed ?? this.speed,
+    );
+  }
 }

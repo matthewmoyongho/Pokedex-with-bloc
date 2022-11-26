@@ -60,6 +60,5 @@ class PokemonService {
     } catch (err) {
       return [];
     }
-    //return pokemons;
   }
 }
