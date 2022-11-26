@@ -15,6 +15,7 @@ class App extends StatelessWidget {
     return BlocProvider(
       create: (context) => PokemonsBloc(repository),
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
             tabBarTheme: TabBarTheme(
               labelColor: Color(0xff161A33),
